@@ -1,43 +1,27 @@
 package org.example.order;
 
-import io.restassured.response.ValidatableResponse;
-import org.example.user.User;
-import org.example.user.UserClient;
+import org.example.base.TestBase;
 import org.example.user.UserDataProvider;
-import org.example.user.response.UserRegisterResponse;
 import org.junit.After;
 import org.junit.Before;
 
-public class OrderTestBase {
+public class OrderTestBase extends TestBase {
 
-    protected OrderClient client;
-    protected String userAccessToken;
-    protected static final String EMPTY_ACCESS_TOKEN = "";
+    protected OrderClient orderClient;
+    protected String randomUserAccessToken;
 
     @Before
     public void setUp() {
-        client = new OrderClient();
-        userAccessToken = createUserAndReturnAccessToken(UserDataProvider.getDefaultUser());
+        super.setUp();
+        orderClient = new OrderClient();
+        randomUserAccessToken = createUserAndReturnAccessToken(
+                UserDataProvider.getUserWithRandomCredentials()
+        );
     }
 
     @After
     public void tearDown() {
-        deleteUser(userAccessToken);
-    }
-
-    protected String createUserAndReturnAccessToken(User user) {
-        UserClient client = new UserClient();
-        ValidatableResponse responseCreate = client.create(user);
-        return responseCreate
-                .extract()
-                .as(UserRegisterResponse.class)
-                .getAccessTokenWithoutBearerWord();
-    }
-
-    protected void deleteUser(String accessToken) {
-        UserClient client = new UserClient();
-        if(!accessToken.isEmpty()) {
-            client.delete(accessToken);
-        }
+        deleteUser(randomUserAccessToken);
     }
 }
+

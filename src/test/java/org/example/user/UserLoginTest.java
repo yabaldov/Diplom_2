@@ -18,11 +18,11 @@ public class UserLoginTest extends UserTestBase {
     @Description("Тест логина под существующим пользователем")
     public void shouldLoginUserSuccessfully() {
         User user = UserDataProvider.getDefaultUser();
-        createUserAndGetAccessToken(user);
+        getAndSaveAccessTokenOfNewUser(user);
 
         UserCredentials credentials = new UserCredentials(user);
 
-        ValidatableResponse responseLogin = client.login(credentials);
+        ValidatableResponse responseLogin = userClient.login(credentials);
         assertThat("Логин под существующим пользователем, код ответа должен быть 200 OK.", responseLogin.extract().statusCode(), is(SC_OK));
 
         UserRegisterResponse userLoggedResponse = responseLogin.extract().as(UserRegisterResponse.class);
@@ -38,7 +38,7 @@ public class UserLoginTest extends UserTestBase {
     @Description("Тест логина с неверным логином и паролем")
     public void shouldNotLoginUserWithWrongLoginAndPassword() {
         UserCredentials wrongCredentials = new UserCredentials(UserDataProvider.getUserWithWrongLoginAndPassword());
-        ValidatableResponse response = client.login(wrongCredentials);
+        ValidatableResponse response = userClient.login(wrongCredentials);
 
         assertThat("Логин с неверным логином и паролем, код ответа должен быть 401 UNAUTHORIZED.", response.extract().statusCode(), is(SC_UNAUTHORIZED));
         assertThat("При логине с неверным логином и паролем в теле ответа должно быть '\"success\": false'.", response.extract().path("success"), is(false));

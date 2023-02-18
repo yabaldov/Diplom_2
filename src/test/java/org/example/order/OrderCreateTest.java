@@ -25,12 +25,12 @@ public class OrderCreateTest extends OrderTestBase {
 
     @Test
     @DisplayName("Should Create an Order With Correct Ingredients for Authorized User")
-    @Description("Создание заказа с авторизацией")
+    @Description("Создание заказа с авторизацией и корректными ингредиентами")
     public void shouldCreateOrderWithCorrectIngredientsForAuthUser() {
         Order order = new Order(VALID_INGREDIENTS);
         int expectedIngredientsQuantity = order.getIngredients().size();
 
-        ValidatableResponse response = client.create(order, userAccessToken);
+        ValidatableResponse response = orderClient.create(order, randomUserAccessToken);
 
         assertThat("При успешном создании заказа сейчас приходит код ответа 200 OK.", response.extract().statusCode(), is(SC_OK));
         OrderResponse orderInfo = response.extract().as(OrderResponse.class);
@@ -50,11 +50,11 @@ public class OrderCreateTest extends OrderTestBase {
 
     @Test
     @DisplayName("Should Create an Order for Unauthorized User")
-    @Description("Создание заказа с авторизацией")
-    public void shouldCreateOrderForUnauthUser() {
+    @Description("Создание заказа без авторизации и корректными ингредиентами")
+    public void shouldCreateOrderWithCorrectIngredientsForUnauthUser() {
         Order order = new Order(VALID_INGREDIENTS);
 
-        ValidatableResponse response = client.create(order, EMPTY_ACCESS_TOKEN);
+        ValidatableResponse response = orderClient.create(order, EMPTY_ACCESS_TOKEN);
 
         assertThat("При создании заказа сейчас приходит код ответа 200 OK.", response.extract().statusCode(), is(SC_OK));
         assertThat("При создании заказа в ответе возвращается '\"success\": true'.", response.extract().path("success"), is(true));
@@ -71,7 +71,7 @@ public class OrderCreateTest extends OrderTestBase {
     public void shouldNotCreateOrderWithoutIngredientsForAuthUser() {
         Order order = new Order(EMPTY_INGREDIENTS);
 
-        ValidatableResponse response = client.create(order, userAccessToken);
+        ValidatableResponse response = orderClient.create(order, randomUserAccessToken);
 
         assertThat("При создании заказа без ингредиентов приходит код ответа 400 BAD REQUEST.", response.extract().statusCode(), is(SC_BAD_REQUEST));
         assertThat("При создании заказа без ингредиентов в ответе возвращается '\"success\": false'.", response.extract().path("success"), is(false));
@@ -84,7 +84,7 @@ public class OrderCreateTest extends OrderTestBase {
     public void shouldNotCreateOrderWithoutIngredientsForUnauthUser() {
         Order order = new Order(EMPTY_INGREDIENTS);
 
-        ValidatableResponse response = client.create(order, EMPTY_ACCESS_TOKEN);
+        ValidatableResponse response = orderClient.create(order, EMPTY_ACCESS_TOKEN);
 
         assertThat("При создании заказа без ингредиентов приходит код ответа 400 BAD REQUEST.", response.extract().statusCode(), is(SC_BAD_REQUEST));
         assertThat("При создании заказа без ингредиентов в ответе возвращается '\"success\": false'.", response.extract().path("success"), is(false));
@@ -97,7 +97,7 @@ public class OrderCreateTest extends OrderTestBase {
     public void shouldNotCreateOrderWithIncorrectIngredientsForAuthUser() {
         Order order = new Order(INCORRECT_INGREDIENTS);
 
-        ValidatableResponse response = client.create(order, userAccessToken);
+        ValidatableResponse response = orderClient.create(order, randomUserAccessToken);
 
         assertThat("При заказе с некорректными ингредиентами приходит код ответа 400 BAD REQUEST.", response.extract().statusCode(), is(SC_BAD_REQUEST));
         assertThat("При заказе с некорректными ингредиентами в ответе возвращается '\"success\": false'.", response.extract().path("success"), is(false));
@@ -110,7 +110,7 @@ public class OrderCreateTest extends OrderTestBase {
     public void shouldNotCreateOrderWithIncorrectForUnauthUser() {
         Order order = new Order(INCORRECT_INGREDIENTS);
 
-        ValidatableResponse response = client.create(order, EMPTY_ACCESS_TOKEN);
+        ValidatableResponse response = orderClient.create(order, EMPTY_ACCESS_TOKEN);
 
         assertThat("При создании заказа некорректными ингредиентами приходит код ответа 400 BAD REQUEST.", response.extract().statusCode(), is(SC_BAD_REQUEST));
         assertThat("При создании заказа некорректными ингредиентами в ответе возвращается '\"success\": false'.", response.extract().path("success"), is(false));
@@ -123,7 +123,7 @@ public class OrderCreateTest extends OrderTestBase {
     public void shouldNotCreateOrderWithInvalidIngredientsForAuthUser() {
         Order order = new Order(INVALID_INGREDIENTS);
 
-        ValidatableResponse response = client.create(order, userAccessToken);
+        ValidatableResponse response = orderClient.create(order, randomUserAccessToken);
 
         assertThat("При заказе с неверным хешем ингредиентов приходит код ответа 500 INTERNAL SERVER ERROR.", response.extract().statusCode(), is(SC_INTERNAL_SERVER_ERROR));
     }
@@ -131,10 +131,10 @@ public class OrderCreateTest extends OrderTestBase {
     @Test
     @DisplayName("Should Not Create an Order With Invalid Ingredients for Unauthorized User")
     @Description("Создание заказа с без авторизацией с неверным хешем ингредиентов.")
-    public void shouldNotCreateOrderWithInvalidForUnauthUser() {
+    public void shouldNotCreateOrderWithInvalidIngredientsForUnauthUser() {
         Order order = new Order(INVALID_INGREDIENTS);
 
-        ValidatableResponse response = client.create(order, EMPTY_ACCESS_TOKEN);
+        ValidatableResponse response = orderClient.create(order, EMPTY_ACCESS_TOKEN);
 
         assertThat("При заказе с неверным хешем ингредиентов приходит код ответа 500 INTERNAL SERVER ERROR.", response.extract().statusCode(), is(SC_INTERNAL_SERVER_ERROR));
     }

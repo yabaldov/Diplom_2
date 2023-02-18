@@ -3,7 +3,6 @@ package org.example.user;
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.ValidatableResponse;
-import org.example.user.response.UserRegisterResponse;
 import org.example.user.response.UserDataResponse;
 import org.junit.Test;
 
@@ -19,13 +18,13 @@ public class UserInfoUpdateTest extends UserTestBase {
     @Description("Тест обновления email авторизованного пользователя")
     public void shouldUpdateEmailOfAuthorizedUser() {
         User user = UserDataProvider.getDefaultUser();
-        String accessToken = createUserAndGetAccessToken(user);
+        String accessToken = getAndSaveAccessTokenOfNewUser(user);
 
         UserPersonalData userData = new UserPersonalData(user);
         String newEmail = "new" + userData.getEmail();
         userData.setEmail(newEmail);
 
-        ValidatableResponse response = client.update(userData, accessToken);
+        ValidatableResponse response = userClient.update(userData, accessToken);
 
         assertThat("При успешном обновлении пользователя код ответа должен быть 200 OK.", response.extract().statusCode(), is(SC_OK));
         UserDataResponse userUpdateResult = response.extract().as(UserDataResponse.class);
@@ -41,13 +40,13 @@ public class UserInfoUpdateTest extends UserTestBase {
     @Description("Тест обновления имени авторизованного пользователя")
     public void shouldUpdateNameOfAuthorizedUser() {
         User user = UserDataProvider.getDefaultUser();
-        String accessToken = createUserAndGetAccessToken(user);
+        String accessToken = getAndSaveAccessTokenOfNewUser(user);
 
         UserPersonalData userData = new UserPersonalData(user);
         String newName = "new" + userData.getName();
         userData.setName(newName);
 
-        ValidatableResponse response = client.update(userData, accessToken);
+        ValidatableResponse response = userClient.update(userData, accessToken);
 
         assertThat("При успешном обновлении пользователя код ответа должен быть 200 OK.", response.extract().statusCode(), is(SC_OK));
         UserDataResponse userUpdateResult = response.extract().as(UserDataResponse.class);
@@ -63,7 +62,6 @@ public class UserInfoUpdateTest extends UserTestBase {
     @Description("Тест обновления имени неавторизованного пользователя")
     public void shouldNotUpdateDataOfUnauthorizedUser() {
         User user = UserDataProvider.getDefaultUser();
-        String accessToken = createUserAndGetAccessToken(user);
 
         UserPersonalData userData = new UserPersonalData(user);
         String newName = "new" + userData.getName();
@@ -71,7 +69,7 @@ public class UserInfoUpdateTest extends UserTestBase {
         String newEmail = "new" + userData.getEmail();
         userData.setEmail(newEmail);
 
-        ValidatableResponse response = client.update(userData, "");
+        ValidatableResponse response = userClient.update(userData, "");
         assertThat("При обновлении неавторизованного пользователя код ответа должен быть 401 UNAUTHORIZED.", response.extract().statusCode(), is(SC_UNAUTHORIZED));
         assertThat("При обновлении неавторизованного пользователя в ответе должно быть '\"success\": false'.", response.extract().path("success"), is(false));
         assertThat("При обновлении неавторизованного пользователя в ответе должно быть ожидаемое сообщение об ошибке.",

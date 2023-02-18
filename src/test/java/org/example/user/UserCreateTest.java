@@ -27,7 +27,7 @@ public class UserCreateTest extends UserTestBase {
     @DisplayName("Should Create a User")
     @Description("Тест создания пользователя")
     public void shouldCreateUserSuccessfully() {
-        ValidatableResponse response = client.create(user);
+        ValidatableResponse response = userClient.create(user);
 
         assertThat(
              "При успешном создании пользователя сейчас приходит код ответа 200 OK.",
@@ -62,11 +62,11 @@ public class UserCreateTest extends UserTestBase {
     @DisplayName("Should Not Create a User Having Registered Credentials")
     @Description("Тест создания пользователя создать, который уже зарегистрирован")
     public void shouldNotCreateUserHavingRegisteredCredentials() {
-        ValidatableResponse response = client.create(user);
+        ValidatableResponse response = userClient.create(user);
         assertThat("Код ответа должен быть 200 OK.", response.extract().statusCode(), is(SC_OK));
         userAccessTokensForDelete.add(response.extract().as(UserRegisterResponse.class).getAccessTokenWithoutBearerWord());
 
-        ValidatableResponse responseOneMoreUser = client.create(user);
+        ValidatableResponse responseOneMoreUser = userClient.create(user);
         if(responseOneMoreUser.extract().statusCode() == SC_OK) {
             userAccessTokensForDelete.add(responseOneMoreUser.extract().as(UserRegisterResponse.class).getAccessTokenWithoutBearerWord());
         }
